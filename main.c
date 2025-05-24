@@ -27,32 +27,32 @@ int main( int argc, char *argv[] ) {
       const char *key = generate_key();
       printf("Your Key is %s\n", key);
       crypt_file(argv[1], crypt_key((char*)(key)));
+      printf("Encryption complete. Output saved to output.txt\n");
     }
     
     if ( strcmp(argv[2], "-ek") == 0 ) {
       printf("Encrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
       char key[128];
-      fgets(key, sizeof(key), stdin);
-      key[strcspn(key, "\n")] = '\0';
+      
       crypt_file(argv[1], crypt_key(key));
+      printf("Encryption complete. Output saved to output.txt\n");
     }
     
     if ( strcmp(argv[2], "-d") == 0 ) {
       printf("Decrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
       char key[128];
-      fgets(key, sizeof(key), stdin);
-      key[strcspn(key, "\n")] = '\0';
+      
       crypt_file(argv[1], crypt_key(key));
+      printf("Decryptio complete. Output saved to output.txt\n");
     }
     
     if ( strcmp(argv[2], "-v") == 0 ) {
       printf("Veiwng the file : %s\n", argv[1]);
       printf("Enter your key\n");
       char key[128];
-      fgets(key, sizeof(key), stdin);
-      key[strcspn(key, "\n")] = '\0';
+      
       view_encrypted_file(argv[1], crypt_key(key));
     }
     
