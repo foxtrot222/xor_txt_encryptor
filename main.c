@@ -3,13 +3,15 @@
 #include <time.h>
 #include <string.h>
 
-void crypt_file(char filename[], char key[]);
-void view_encypted_file(char filename[], char key[]);
+void crypt_file(char filename[], char key);
+void view_encrypted_file(char filename[], char key);
 char crypt_key(char key[]);
 const char* generate_key();
 
 int main( int argc, char *argv[] ) {
+  
   srand(time(NULL));
+  
   if ( argc < 3 ) {
     fprintf(stderr, "Not enough arguments.\n");
     return 1;
@@ -19,65 +21,44 @@ int main( int argc, char *argv[] ) {
     return 1;
   }
   else {
+    printf("XOR TXT Encryptor\n");
     if ( strcmp(argv[2],"-er") == 0 ) {
+      printf("Encrypting the file : %s\n", argv[1]);
       const char *key = generate_key();
       printf("Your Key is %s\n", key);
-      crypt(argv[1], key);
+      crypt_file(argv[1], crypt_key((char*)(key)));
     }
+    
     if ( strcmp(argv[2], "-ek") == 0 ) {
-      char key;
+      printf("Encrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
-      crypt(argv[1], crpyt_(key));
+      char key[128];
+      fgets(key, sizeof(key), stdin);
+      key[strcspn(key, "\n")] = '\0';
+      crypt_file(argv[1], crypt_key(key));
     }
+    
     if ( strcmp(argv[2], "-d") == 0 ) {
-      char key;
+      printf("Decrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
-      crypt(argv[1], crypt_(key));
+      char key[128];
+      fgets(key, sizeof(key), stdin);
+      key[strcspn(key, "\n")] = '\0';
+      crypt_file(argv[1], crypt_key(key));
     }
+    
     if ( strcmp(argv[2], "-v") == 0 ) {
-      char key;
+      printf("Veiwng the file : %s\n", argv[1]);
       printf("Enter your key\n");
-      crypt(argv[1], crypt_key(key)); 
+      char key[128];
+      fgets(key, sizeof(key), stdin);
+      key[strcspn(key, "\n")] = '\0';
+      view_encrypted_file(argv[1], crypt_key(key));
     }
+    
   }
-  printf("\n");
+  printf("Done.\n");
   return 0;
-}
-
-void crypt_file(char filename[], char key[]) {
-  
-  FILE *original_fp;
-  original_fp = fopen(filename, "r");
-  if ( original_fp == NULL ) {
-   fprintf(stderr, "File not found.\n");
-   exit(1); 
-  }
-  FILE *updated_fp;
-  updated_fp = fopen("output.txt", "w");
-  char c;
-  while ( !feof(original_fp) ) {
-    c = fgetc(original_fp);
-    fputc(c ^ crypt_key(key), updated_fp);
-  }
-  fclose(updated_fp);
-  fclose(original_fp);
-}
-
-void decrypt_view(char filename[], char key[]) {
-  FILE *original_fp;
-  original_fp = fopen(filename, "r");
-  
-  if ( original_fp == NULL ) {
-   fprintf(stderr, "File not found.\n");
-   exit(1); 
-  }
-  
-  char c;
-  while ( !feof(original_fp) ) {
-    c = fgetc(original_fp);
-    printf("%c", c ^ crypt_key(key));
-  }
-  fclose(original_fp);
 }
 
 char crypt_key(char key[]) {
@@ -88,11 +69,45 @@ char crypt_key(char key[]) {
   return c;
 }
 
+void crypt_file(char filename[], char key) {
+  
+  FILE *original_fp;
+  original_fp = fopen(filename, "r");
+  if ( original_fp == NULL ) {
+   fprintf(stderr, "File not found.\n");
+   exit(1); 
+  }
+  FILE *updated_fp;
+  updated_fp = fopen("output.txt", "w");
+  char c;
+  while ( (c = fgetc(original_fp)) != EOF ) {
+    fputc(c ^ key, updated_fp);
+  }
+  fclose(updated_fp);
+  fclose(original_fp);
+}
+
+void view_encrypted_file(char filename[], char key) {
+  FILE *original_fp;
+  original_fp = fopen(filename, "r");
+  
+  if ( original_fp == NULL ) {
+   fprintf(stderr, "File not found.\n");
+   exit(1); 
+  }
+  
+  char c;
+  while ( (c = fgetc(original_fp)) != EOF)  {
+    printf("%c", c ^ key);
+  }
+  fclose(original_fp);
+}
+
 const char* generate_key() {
-  char key[12];
+  static char key[12];
   key[11] = '\0';
   for ( int i = 0 ; i < 11 ; i++ ) {
-    key[i] = (char)(rand() % 256);
+    key[i] = 33 + rand() % 94;
   }
   char *pkey = key;
   return pkey;
