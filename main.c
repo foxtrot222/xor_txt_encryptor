@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 void crypt(char filename[], char key);
+void decrypt_view(char filename[], char key);
 
 int main( int argc, char *argv[] ) {
   if ( argc < 3 ) {
@@ -33,5 +34,22 @@ void crypt(char filename[], char key) {
     fputc(c ^ key, updated_fp);
   }
   fclose(updated_fp);
+  fclose(original_fp);
+}
+
+void decrypt_view(char filename[], char key) {
+  FILE *original_fp;
+  original_fp = fopen(filename, "r");
+  
+  if ( original_fp == NULL ) {
+   fprintf(stderr, "File not found.\n");
+   exit(1); 
+  }
+  
+  char c;
+  while ( !feof(original_fp) ) {
+    c = fgetc(original_fp);
+    printf("%c", c ^ key);
+  }
   fclose(original_fp);
 }
