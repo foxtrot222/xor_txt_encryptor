@@ -1,15 +1,30 @@
 #include <stdio.h>
+#include <stdlib.h>
 
 void crypt(char filename[], char key);
 
-int main() {
-  
+int main( int argc, char *argv[] ) {
+  if ( argc < 3 ) {
+    fprintf(stderr, "Not enough arguments.\n");
+    return 1;
+  }
+  else if ( argc > 3 ) {
+    fprintf(stderr, "Too many arguments.\n");
+    return 1;
+  }
+  else {
+    
+  }
   return 0;
 }
 
 void crypt(char filename[], char key) {
   FILE *original_fp;
   original_fp = fopen(filename, "r");
+  if ( original_fp == NULL ) {
+   fprintf(stderr, "File not found.\n");
+   exit(1); 
+  }
   FILE *updated_fp;
   updated_fp = fopen("output.txt", "w");
   char c;
