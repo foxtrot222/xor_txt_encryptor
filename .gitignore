@@ -36,7 +36,7 @@
 *.x86_64
 *.hex
 main
-xto
+xor_encryptor
 
 # Debug files
 *.dSYM/
