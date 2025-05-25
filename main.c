@@ -39,9 +39,13 @@ int main( int argc, char *argv[] ) {
     
     if ( strcmp(argv[2], "-ek") == 0 ) {
       printf("Encrypting the file : %s\n", argv[1]);
+      printf("Enter your key length : ");
+      int key_length;
+      scanf("%d", &key_length);
       printf("Enter your key\n");
       noecho(true);
-      char key[128];
+      char key[key_length];
+      fgets(key, key_length, stdin);
       noecho(false);
       crypt_file(argv[1], crypt_key(key));
       printf("Encryption complete. Output saved to output.txt\n");
@@ -49,20 +53,27 @@ int main( int argc, char *argv[] ) {
     
     if ( strcmp(argv[2], "-d") == 0 ) {
       printf("Decrypting the file : %s\n", argv[1]);
+      printf("Enter your key length : ");
+      int key_length;
+      scanf("%d", &key_length);
       printf("Enter your key\n");
       noecho(true);
-      char key[128];
+      char key[key_length];
+      fgets(key, key_length, stdin);
       noecho(false);
-      
       crypt_file(argv[1], crypt_key(key));
       printf("Decryption complete. Output saved to output.txt\n");
     }
     
     if ( strcmp(argv[2], "-v") == 0 ) {
       printf("Viewng the file : %s\n", argv[1]);
+      printf("Enter your key length : ");
+      int key_length;
+      scanf("%d", &key_length);
       printf("Enter your key\n");
       noecho(true);
-      char key[128];
+      char key[key_length];
+      fgets(key, key_length, stdin);
       noecho(false);
       view_encrypted_file(argv[1], crypt_key(key));
     }
