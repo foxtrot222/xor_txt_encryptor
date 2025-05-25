@@ -14,151 +14,155 @@ void view_encrypted_file(char filename[], char key[]);
 char* generate_key(int key_length);
 void noecho(bool i);
 
-int main( int argc, char *argv[] ) {
- 
-  srand(time(NULL));
-  
-  if ( argc < 3 ) {
-    fprintf(stderr, "Not enough arguments.\n");
-    return 1;
-  }
-  else if ( argc > 3 ) {
-    fprintf(stderr, "Too many arguments.\n");
-    return 1;
-  }
-  else {
+int main(int argc, char *argv[]) {
+    srand(time(NULL));
+
+    if (argc < 3) {
+        fprintf(stderr, "Not enough arguments.\n");
+        return 1;
+    } else if (argc > 3) {
+        fprintf(stderr, "Too many arguments.\n");
+        return 1;
+    }
+
     printf("XOR TXT Encryptor\n");
-    if ( strcmp(argv[2],"-er") == 0 ) {
-      printf("Encrypting the file : %s\n", argv[1]);
-      printf("Enter your key length : ");
-      int key_length;
-      scanf("%d", &key_length);
-      char *key = generate_key(key_length);
-      printf("Generated key: %s\n", key);
-      crypt_file(argv[1], key);
-      printf("Encryption complete. Output saved to output.txt\n");
-      free(key);
+
+    if (strcmp(argv[2], "-er") == 0) {
+        printf("Encrypting the file: %s\n", argv[1]);
+        printf("Enter your key length: ");
+        int key_length;
+        scanf("%d", &key_length);
+        getchar();
+        char *key = generate_key(key_length);
+        printf("Generated key: %s\n", key);
+        crypt_file(argv[1], key);
+        printf("Encryption complete. Output saved to output.txt\n");
+        free(key);
     }
-    
-    if ( strcmp(argv[2], "-ek") == 0 ) {
-      printf("Encrypting the file : %s\n", argv[1]);
-      printf("Enter your key length : ");
-      int key_length;
-      scanf("%d", &key_length);
-      printf("Enter your key\n");
-      noecho(true);
-      char key[key_length];
-      fgets(key, key_length - 1 , stdin);
-      key[strcspn(key, "\n")] = '\0';
-      noecho(false);
-      crypt_file(argv[1], key);
-      printf("Encryption complete. Output saved to output.txt\n");
+
+    if (strcmp(argv[2], "-ek") == 0) {
+        printf("Encrypting the file: %s\n", argv[1]);
+        printf("Enter your key length: ");
+        int key_length;
+        scanf("%d", &key_length);
+        getchar();
+        printf("Enter your key\n");
+        noecho(true);
+        char key[key_length + 1];
+        fgets(key, key_length + 1, stdin);
+        key[strcspn(key, "\n")] = '\0';
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
+        noecho(false);
+        crypt_file(argv[1], key);
+        printf("Encryption complete. Output saved to output.txt\n");
     }
-    
-    if ( strcmp(argv[2], "-d") == 0 ) {
-      printf("Decrypting the file : %s\n", argv[1]);
-      printf("Enter your key length : ");
-      int key_length;
-      scanf("%d", &key_length);
-      printf("Enter your key\n");
-      noecho(true);
-      char key[key_length];
-      fgets(key, key_length - 1, stdin);
-      key[strcspn(key, "\n")] = '\0';
-      noecho(false);
-      crypt_file(argv[1], key);
-      printf("Decryption complete. Output saved to output.txt\n");
+
+    if (strcmp(argv[2], "-d") == 0) {
+        printf("Decrypting the file: %s\n", argv[1]);
+        printf("Enter your key length: ");
+        int key_length;
+        scanf("%d", &key_length);
+        getchar();
+        printf("Enter your key\n");
+        noecho(true);
+        char key[key_length + 1];
+        fgets(key, key_length + 1, stdin);
+        key[strcspn(key, "\n")] = '\0';
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
+        noecho(false);
+        crypt_file(argv[1], key);
+        printf("Decryption complete. Output saved to output.txt\n");
     }
-    
-    if ( strcmp(argv[2], "-v") == 0 ) {
-      printf("Viewng the file : %s\n", argv[1]);
-      printf("Enter your key length : ");
-      int key_length;
-      scanf("%d", &key_length);
-      printf("Enter your key\n");
-      noecho(true);
-      char key[key_length];
-      fgets(key, key_length - 1, stdin);
-      key[strcspn(key, "\n")] = '\0';
-      noecho(false);
-      view_encrypted_file(argv[1], key);
+
+    if (strcmp(argv[2], "-v") == 0) {
+        printf("Viewing the file: %s\n", argv[1]);
+        printf("Enter your key length: ");
+        int key_length;
+        scanf("%d", &key_length);
+        getchar();
+        printf("Enter your key\n");
+        noecho(true);
+        char key[key_length + 1];
+        fgets(key, key_length + 1, stdin);
+        key[strcspn(key, "\n")] = '\0';
+        int ch;
+        while ((ch = getchar()) != '\n' && ch != EOF);
+        noecho(false);
+        view_encrypted_file(argv[1], key);
     }
-    
-  }
-  printf("Done.\n");
-  return 0;
+
+    printf("Done.\n");
+    return 0;
 }
 
 void crypt_file(char filename[], char key[]) {
-  
-  FILE *original_fp;
-  original_fp = fopen(filename, "r");
-  if ( original_fp == NULL ) {
-   fprintf(stderr, "File not found.\n");
-   exit(1); 
-  }
-  FILE *updated_fp;
-  updated_fp = fopen("output.txt", "w");
-  char c;
-  int i = 0;
-  while ( (c = fgetc(original_fp)) != EOF ) {
-    fputc(c ^ key[i], updated_fp);
-    if ( key[i] == '\0' ) {
-      i = 0;
+    FILE *original_fp = fopen(filename, "r");
+    if (original_fp == NULL) {
+        fprintf(stderr, "File not found: %s\n", filename);
+        exit(1);
     }
-    else {
-      i++;
+
+    FILE *updated_fp = fopen("output.txt", "w");
+    if (updated_fp == NULL) {
+        fprintf(stderr, "Could not create output.txt\n");
+        fclose(original_fp);
+        exit(1);
     }
-  }
-  fclose(updated_fp);
-  fclose(original_fp);
+
+    char c;
+    int i = 0;
+    int key_len = strlen(key);
+
+    while ((c = fgetc(original_fp)) != EOF) {
+        fputc(c ^ key[i], updated_fp);
+        i = (i + 1) % key_len;
+    }
+
+    fclose(updated_fp);
+    fclose(original_fp);
 }
 
 void view_encrypted_file(char filename[], char key[]) {
-  FILE *original_fp;
-  original_fp = fopen(filename, "r");
-  
-  if ( original_fp == NULL ) {
-   fprintf(stderr, "File not found.\n");
-   exit(1); 
-  }
-  
-  char c;
-  int i = 0;
-  while ( (c = fgetc(original_fp)) != EOF)  {
-    printf("%c", c ^ key[i]);
-    if ( key[i] == '\0' ) {
-      i = 0;
+    FILE *original_fp = fopen(filename, "r");
+    if (original_fp == NULL) {
+        fprintf(stderr, "File not found: %s\n", filename);
+        exit(1);
     }
-    else {
-      i++;
+
+    char c;
+    int i = 0;
+    int key_len = strlen(key);
+
+    while ((c = fgetc(original_fp)) != EOF) {
+        printf("%c", c ^ key[i]);
+        i = (i + 1) % key_len;
     }
-  }
-  fclose(original_fp);
+
+    printf("\n");
+    fclose(original_fp);
 }
 
 char* generate_key(int key_length) {
-  char *key = malloc(key_length * sizeof(char));
-  if (key == NULL) {
-    printf("Memory allocation failed!\n");
-    exit(1);
-  }
-  for ( int i = 0 ; i < key_length ; i++ ) {
-    key[i] = 33 + rand() % 94;
-  }
-  key[key_length - 1] = '\0'; 
-  return key;
+    char *key = malloc((key_length + 1) * sizeof(char));
+    if (key == NULL) {
+        fprintf(stderr, "Memory allocation failed!\n");
+        exit(1);
+    }
+
+    for (int i = 0; i < key_length; i++) {
+        key[i] = 33 + rand() % 94;
+    }
+    key[key_length] = '\0';
+
+    return key;
 }
 
 void noecho(bool i) {
-  struct termios original, noecho;
-  tcgetattr(STDIN_FILENO,&original);
-  noecho = original;
-  noecho.c_lflag = noecho.c_lflag ^ ECHO;
-  if (i) {
-     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
-  }
-  else {
-    tcsetattr(STDIN_FILENO, TCSANOW, &original);
-  }
+    struct termios original, noecho;
+    tcgetattr(STDIN_FILENO, &original);
+    noecho = original;
+    noecho.c_lflag ^= ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, i ? &noecho : &original);
 }
