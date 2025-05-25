@@ -41,24 +41,29 @@ int main(int argc, char *argv[]) {
         free(key);
     }
 
-    if (strcmp(argv[2], "-ek") == 0) {
+    else if (strcmp(argv[2], "-ek") == 0) {
         printf("Encrypting the file: %s\n", argv[1]);
         char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
     }
 
-    if (strcmp(argv[2], "-d") == 0) {
+    else if (strcmp(argv[2], "-d") == 0) {
         printf("Decrypting the file: %s\n", argv[1]);
         char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Decryption complete. Output saved to output.txt\n");
     }
 
-    if (strcmp(argv[2], "-v") == 0) {
+    else if (strcmp(argv[2], "-v") == 0) {
         printf("Viewing the file: %s\n", argv[1]);
         char* key = get_key_from_user();
         view_encrypted_file(argv[1], key);
+    }
+
+    else {
+      fprintf(stderr, "Invalid arguments.\n");
+      return 1;
     }
     
     tcsetattr(STDIN_FILENO, TCSANOW, &original);
