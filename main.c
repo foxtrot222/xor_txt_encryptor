@@ -9,9 +9,8 @@
 #define STDIN_FILENO 0
 #endif
 
-void crypt_file(char filename[], char key);
-void view_encrypted_file(char filename[], char key);
-char crypt_key(char key[]);
+void crypt_file(char filename[], char key[]);
+void view_encrypted_file(char filename[], char key[]);
 const char* generate_key();
 void noecho(bool i);
 
@@ -33,7 +32,7 @@ int main( int argc, char *argv[] ) {
       printf("Encrypting the file : %s\n", argv[1]);
       const char *key = generate_key();
       printf("Your Key is %s\n", key);
-      crypt_file(argv[1], crypt_key((char*)(key)));
+      // crypt_file(argv[1], crypt_key((char*)(key)));
       printf("Encryption complete. Output saved to output.txt\n");
     }
     
@@ -47,7 +46,7 @@ int main( int argc, char *argv[] ) {
       char key[key_length];
       fgets(key, key_length, stdin);
       noecho(false);
-      crypt_file(argv[1], crypt_key(key));
+      crypt_file(argv[1], key);
       printf("Encryption complete. Output saved to output.txt\n");
     }
     
@@ -61,7 +60,7 @@ int main( int argc, char *argv[] ) {
       char key[key_length];
       fgets(key, key_length, stdin);
       noecho(false);
-      crypt_file(argv[1], crypt_key(key));
+      crypt_file(argv[1], key);
       printf("Decryption complete. Output saved to output.txt\n");
     }
     
@@ -75,7 +74,7 @@ int main( int argc, char *argv[] ) {
       char key[key_length];
       fgets(key, key_length, stdin);
       noecho(false);
-      view_encrypted_file(argv[1], crypt_key(key));
+      view_encrypted_file(argv[1], key);
     }
     
   }
@@ -83,15 +82,7 @@ int main( int argc, char *argv[] ) {
   return 0;
 }
 
-char crypt_key(char key[]) {
-  char c = '0';
-  for (int i = 0 ; key[i] != '\0' ; i++ ) {
-    c = c ^ key[i];
-  }
-  return c;
-}
-
-void crypt_file(char filename[], char key) {
+void crypt_file(char filename[], char key[]) {
   
   FILE *original_fp;
   original_fp = fopen(filename, "r");
@@ -109,7 +100,7 @@ void crypt_file(char filename[], char key) {
   fclose(original_fp);
 }
 
-void view_encrypted_file(char filename[], char key) {
+void view_encrypted_file(char filename[], char key[]) {
   FILE *original_fp;
   original_fp = fopen(filename, "r");
   
