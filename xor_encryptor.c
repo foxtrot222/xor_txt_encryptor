@@ -12,7 +12,7 @@
 void crypt_file(char filename[], char key[]);
 void view_encrypted_file(char filename[], char key[]);
 char* generate_key(int key_length);
-
+char* generate_random_key_from_user();
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
@@ -34,12 +34,7 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(argv[2], "-er") == 0) {
         printf("Encrypting the file: %s\n", argv[1]);
-        printf("Enter your key length: ");
-        int key_length;
-        scanf("%d", &key_length);
-        getchar();
-        char *key = generate_key(key_length);
-        printf("Generated key: %s\n", key);
+        char* key = generate_random_key_from_user();
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
         free(key);
@@ -156,4 +151,24 @@ char* generate_key(int key_length) {
     key[key_length] = '\0';
 
     return key;
+}
+
+char* generate_random_key_from_user() {
+  int key_length;
+  
+  printf("Enter your key length: ");
+  if (scanf("%d", &key_length) != 1 || key_length <= 0) {
+    fprintf(stderr, "Invalid key length.\n");
+    exit(1);
+  }
+  getchar();
+
+  char *key = generate_key(key_length);
+  if (!key) {
+    fprintf(stderr, "Key generation failed.\n");
+    exit(1);
+  }
+  
+  printf("Generated key: %s\n", key);
+  return key;
 }
