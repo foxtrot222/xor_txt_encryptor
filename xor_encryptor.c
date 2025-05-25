@@ -13,6 +13,7 @@ void crypt_file(char filename[], char key[]);
 void view_encrypted_file(char filename[], char key[]);
 char* generate_key(int key_length);
 char* generate_random_key_from_user();
+char* get_key_from_user();
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
@@ -42,48 +43,21 @@ int main(int argc, char *argv[]) {
 
     if (strcmp(argv[2], "-ek") == 0) {
         printf("Encrypting the file: %s\n", argv[1]);
-        printf("Enter your key length: ");
-        int key_length;
-        scanf("%d", &key_length);
-        getchar();
-        printf("Enter your key\n");
-        char key[key_length + 1];
-        fgets(key, key_length + 1, stdin);
-        key[strcspn(key, "\n")] = '\0';
-        int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF);
+        char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
     }
 
     if (strcmp(argv[2], "-d") == 0) {
         printf("Decrypting the file: %s\n", argv[1]);
-        printf("Enter your key length: ");
-        int key_length;
-        scanf("%d", &key_length);
-        getchar();
-        printf("Enter your key\n");
-        char key[key_length + 1];
-        fgets(key, key_length + 1, stdin);
-        key[strcspn(key, "\n")] = '\0';
-        int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF);
+        char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Decryption complete. Output saved to output.txt\n");
     }
 
     if (strcmp(argv[2], "-v") == 0) {
         printf("Viewing the file: %s\n", argv[1]);
-        printf("Enter your key length: ");
-        int key_length;
-        scanf("%d", &key_length);
-        getchar();
-        printf("Enter your key\n");
-        char key[key_length + 1];
-        fgets(key, key_length + 1, stdin);
-        key[strcspn(key, "\n")] = '\0';
-        int ch;
-        while ((ch = getchar()) != '\n' && ch != EOF);
+        char* key = get_key_from_user();
         view_encrypted_file(argv[1], key);
     }
     
@@ -171,4 +145,38 @@ char* generate_random_key_from_user() {
   
   printf("Generated key: %s\n", key);
   return key;
+}
+
+char* get_key_from_user() {
+    int key_length;
+
+    printf("Enter your key length: ");
+    if (scanf("%d", &key_length) != 1 || key_length <= 0) {
+        fprintf(stderr, "Invalid key length.\n");
+        exit(1);
+    }
+    getchar();
+
+    printf("Enter your key: ");
+
+    char *key = malloc((key_length + 1) * sizeof(char));
+    if (!key) {
+        fprintf(stderr, "Memory allocation failed for key.\n");
+        exit(1);
+    }
+
+    if (!fgets(key, key_length + 1, stdin)) {
+        fprintf(stderr, "Error reading key.\n");
+        free(key);
+        exit(1);
+    }
+
+    key[strcspn(key, "\n")] = '\0';
+
+    int ch;
+    while ((ch = getchar()) != '\n' && ch != EOF);
+
+    printf("\n");
+
+    return key;
 }
