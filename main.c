@@ -2,14 +2,21 @@
 #include <stdlib.h>
 #include <time.h>
 #include <string.h>
+#include <termios.h>
+#include <stdbool.h>
+
+#ifndef STDIN_FILENO
+#define STDIN_FILENO 0
+#endif
 
 void crypt_file(char filename[], char key);
 void view_encrypted_file(char filename[], char key);
 char crypt_key(char key[]);
 const char* generate_key();
+void noecho(bool i);
 
 int main( int argc, char *argv[] ) {
-  
+ 
   srand(time(NULL));
   
   if ( argc < 3 ) {
@@ -33,8 +40,9 @@ int main( int argc, char *argv[] ) {
     if ( strcmp(argv[2], "-ek") == 0 ) {
       printf("Encrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
+      noecho(true);
       char key[128];
-      
+      noecho(false);
       crypt_file(argv[1], crypt_key(key));
       printf("Encryption complete. Output saved to output.txt\n");
     }
@@ -42,17 +50,20 @@ int main( int argc, char *argv[] ) {
     if ( strcmp(argv[2], "-d") == 0 ) {
       printf("Decrypting the file : %s\n", argv[1]);
       printf("Enter your key\n");
+      noecho(true);
       char key[128];
+      noecho(false);
       
       crypt_file(argv[1], crypt_key(key));
-      printf("Decryptio complete. Output saved to output.txt\n");
+      printf("Decryption complete. Output saved to output.txt\n");
     }
     
     if ( strcmp(argv[2], "-v") == 0 ) {
-      printf("Veiwng the file : %s\n", argv[1]);
+      printf("Viewng the file : %s\n", argv[1]);
       printf("Enter your key\n");
+      noecho(true);
       char key[128];
-      
+      noecho(false);
       view_encrypted_file(argv[1], crypt_key(key));
     }
     
@@ -111,4 +122,17 @@ const char* generate_key() {
   }
   char *pkey = key;
   return pkey;
+}
+
+void noecho(bool i) {
+  struct termios original, noecho;
+  tcgetattr(STDIN_FILENO,&original);
+  noecho = original;
+  noecho.c_lflag = noecho.c_lflag ^ ECHO;
+  if (i) {
+     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+  }
+  else {
+    tcsetattr(STDIN_FILENO, TCSANOW, &original);
+  }
 }
