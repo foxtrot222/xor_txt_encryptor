@@ -3,25 +3,27 @@
 #include <time.h>
 #include <string.h>
 #include <termios.h>
-#include <stdbool.h>
 
 #ifndef STDIN_FILENO
 #define STDIN_FILENO 0
 #endif
 
+struct termios original;
 void crypt_file(char filename[], char key[]);
 void view_encrypted_file(char filename[], char key[]);
 char* generate_key(int key_length);
 char* generate_random_key_from_user();
 char* get_key_from_user();
+void restore_terminal();
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-    struct termios original,noecho;
-    tcgetattr(STDIN_FILENO,&original);
-    noecho = original;
-    noecho.c_lflag = noecho.c_lflag ^ ECHO;
+    tcgetattr(STDIN_FILENO, &original);
+    atexit(restore_terminal);
+    struct termios noecho = original;
+    noecho.c_lflag &= ~ECHO;
     tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+
     
     if (argc < 3) {
         fprintf(stderr, "Not enough arguments.\n");
@@ -38,7 +40,7 @@ int main(int argc, char *argv[]) {
         char* key = generate_random_key_from_user();
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
-        free(key);
+	free(key);
     }
 
     else if (strcmp(argv[2], "-ek") == 0) {
@@ -46,6 +48,7 @@ int main(int argc, char *argv[]) {
         char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
+	free(key);
     }
 
     else if (strcmp(argv[2], "-d") == 0) {
@@ -53,20 +56,21 @@ int main(int argc, char *argv[]) {
         char* key = get_key_from_user();
         crypt_file(argv[1], key);
         printf("Decryption complete. Output saved to output.txt\n");
+	free(key);
     }
 
     else if (strcmp(argv[2], "-v") == 0) {
         printf("Viewing the file: %s\n", argv[1]);
         char* key = get_key_from_user();
         view_encrypted_file(argv[1], key);
+	free(key);
     }
 
     else {
       fprintf(stderr, "Invalid arguments.\n");
       return 1;
     }
-    
-    tcsetattr(STDIN_FILENO, TCSANOW, &original);
+
     return 0;
 }
 
@@ -162,7 +166,7 @@ char* get_key_from_user() {
     }
     getchar();
 
-    printf("Enter your key: ");
+    printf("\nEnter your key: ");
 
     char *key = malloc((key_length + 1) * sizeof(char));
     if (!key) {
@@ -184,4 +188,8 @@ char* get_key_from_user() {
     printf("\n");
 
     return key;
+}
+
+void restore_terminal() {
+  tcsetattr(STDIN_FILENO, TCSANOW, &original);
 }
