@@ -12,11 +12,16 @@
 void crypt_file(char filename[], char key[]);
 void view_encrypted_file(char filename[], char key[]);
 char* generate_key(int key_length);
-void noecho(bool i);
+
 
 int main(int argc, char *argv[]) {
     srand(time(NULL));
-
+    struct termios original,noecho;
+    tcgetattr(STDIN_FILENO,&original);
+    noecho = original;
+    noecho.c_lflag = noecho.c_lflag ^ ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &noecho);
+    
     if (argc < 3) {
         fprintf(stderr, "Not enough arguments.\n");
         return 1;
@@ -47,13 +52,11 @@ int main(int argc, char *argv[]) {
         scanf("%d", &key_length);
         getchar();
         printf("Enter your key\n");
-        noecho(true);
         char key[key_length + 1];
         fgets(key, key_length + 1, stdin);
         key[strcspn(key, "\n")] = '\0';
         int ch;
         while ((ch = getchar()) != '\n' && ch != EOF);
-        noecho(false);
         crypt_file(argv[1], key);
         printf("Encryption complete. Output saved to output.txt\n");
     }
@@ -65,13 +68,11 @@ int main(int argc, char *argv[]) {
         scanf("%d", &key_length);
         getchar();
         printf("Enter your key\n");
-        noecho(true);
         char key[key_length + 1];
         fgets(key, key_length + 1, stdin);
         key[strcspn(key, "\n")] = '\0';
         int ch;
         while ((ch = getchar()) != '\n' && ch != EOF);
-        noecho(false);
         crypt_file(argv[1], key);
         printf("Decryption complete. Output saved to output.txt\n");
     }
@@ -83,17 +84,15 @@ int main(int argc, char *argv[]) {
         scanf("%d", &key_length);
         getchar();
         printf("Enter your key\n");
-        noecho(true);
         char key[key_length + 1];
         fgets(key, key_length + 1, stdin);
         key[strcspn(key, "\n")] = '\0';
         int ch;
         while ((ch = getchar()) != '\n' && ch != EOF);
-        noecho(false);
         view_encrypted_file(argv[1], key);
     }
-
-    printf("Done.\n");
+    
+    tcsetattr(STDIN_FILENO, TCSANOW, &original);
     return 0;
 }
 
@@ -157,12 +156,4 @@ char* generate_key(int key_length) {
     key[key_length] = '\0';
 
     return key;
-}
-
-void noecho(bool i) {
-    struct termios original, noecho;
-    tcgetattr(STDIN_FILENO, &original);
-    noecho = original;
-    noecho.c_lflag ^= ECHO;
-    tcsetattr(STDIN_FILENO, TCSANOW, i ? &noecho : &original);
 }
